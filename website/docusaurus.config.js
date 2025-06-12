@@ -30,6 +30,11 @@ module.exports = {
       },
       items: [
         {
+          href: 'https://docs.flowave.finos.org',
+          label: 'Docs',
+          position: 'right'
+        },
+        {
           href: 'https://github.com/finos/flowave-website',
           label: 'GitHub',
           position: 'right',
