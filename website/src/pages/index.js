@@ -6,8 +6,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './styles.module.css';
 import Feature from '../components/feature';
 import { features } from '../components/feature-config';
-import FeaturesTwo from '../components/featuresTwo';
-import { featuresTwo } from '../components/featuresTwo-config';
+import { buttons } from './button-config';
 
 function Home() {
   const context = useDocusaurusContext();
@@ -36,26 +35,18 @@ function Home() {
             </div>
           </section>
         )}
-        <div className={styles.buttons}>
-          <Link
-            className={classnames(
-              'button button--outline button--secondary button--lg',
-              styles.button,
-              styles.getStartedButton
-            )}
-            to={''}>
-            Get Started
-          </Link>
-          <Link
-            className={classnames(
-              'button button--outline button--secondary button--lg',
-              styles.button,
-              styles.joinCommunityButton
-            )}
-            to={''}>
-            Join the Community
-          </Link>
-        </div>
+        {buttons && buttons.length && (
+          <div className={styles.buttons}>
+            {buttons.map((props, idx) => (
+              <Link
+                key={idx}
+                className={props.style}
+                to={props.url}>
+                { props.name }
+              </Link>
+            ))}
+          </div>
+        )}
         <div>
         <img className={styles.flowaveCapabilities} src='img/flowave/flowave-capabilities-icons.png' alt='icons representing the capabilities of Flowave'></img>
         </div>
