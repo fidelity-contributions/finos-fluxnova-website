@@ -6,7 +6,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./styles.module.css";
 import Feature from "../components/feature";
 import { features } from "../components/feature-config";
-import { buttons } from "./landing-button-config";
+import { HomeConfig as pageConfig } from "../page-content/home.config";
 
 function Home() {
   const context = useDocusaurusContext();
@@ -41,9 +41,9 @@ function Home() {
           </section>
         )}
         <div className={styles.buttonsWrapper}>
-          {buttons && buttons.length && (
+          {pageConfig.buttons && pageConfig.buttons.length && (
             <div className={styles.buttons}>
-              {buttons.map((props, idx) => (
+              {pageConfig.buttons.map((props, idx) => (
                 <button className={props.style}>
                   <Link key={idx} to={props.url}>
                     {props.name}
