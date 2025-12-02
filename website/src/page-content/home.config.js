@@ -17,18 +17,13 @@ export const HomeConfig = {
         src="/img/Fluxnova-wordmark-Wht.svg"
         alt="Fluxnova wordmark"
       />,
-      <p className="hero--subtitle">AUTOMATE, ORCHESTRATE and ACCELERATE</p>,
+      <p className="hero--subtitle">AUTOMATE, ORCHESTRATE, and ACCELERATE</p>,
       <p className="fluxnova-description">
         Fluxnova is a new opensource BPM platform which aims to provide
         automation and orchestration capabilities to accelerate the digitization
         of end to end process or workflow across the organization.
       </p>,
     ],
-    subtitle: "AUTOMATE, ORCHESTRATE and ACCELERATE",
-    description: `Fluxnova is a new opensource BPM platform which aims to provide
-                    automation and orchestration capabilities to accelerate the
-                    digitization of end to end process or workflow across the
-                    organization.`,
   },
   featuresSection: {
     className: classnames(styles.features, "container"),

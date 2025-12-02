@@ -6,7 +6,6 @@ import TextBlock from "../components/blocks/text-block";
 
 function Home() {
   const context = useDocusaurusContext();
-  const { siteConfig = {} } = context;
   return (
     <Layout>
       <header className="hero-banner">
