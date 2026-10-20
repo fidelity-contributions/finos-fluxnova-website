@@ -1,40 +1,39 @@
-import ReleasesIcon from "/img/icons/releases.svg";
+import EngineIcon from "/img/icons/engine.svg";
+import ModelerIcon from "/img/icons/modeler.svg";
+import MonitoringIcon from "/img/icons/monitoring.svg";
 import React from "react";
-import Link from "@docusaurus/Link";
 
 export const releasesConfig = {
-  sectionOne: {
-    className: "bg-primary color-white",
-    image: {
-      content: <ReleasesIcon fill="#fff" />,
-      side: "right",
+  releaseLinks: [
+    {
+      title: "Fluxnova Engine",
+      description:
+        "Core BPMN/DMN process engine releases, changelogs, and binaries.",
+      href: "https://github.com/finos/fluxnova-bpm-platform/releases",
+      icon: EngineIcon,
     },
-    elements: [
-      <h1>Fluxnova Releases</h1>,
-      <p className="page-lead">
-        Release notes include details of new product features, important
-        changes, and enhancements.
-      </p>,
-    ],
-  },
-  sectionTwo: {
-    className: "bg-white color-charcoal display-block",
-    elements: [
-      <div style={{ textAlign: "center", padding: "2rem 0" }}>
-        <h2>View Release Notes on Github</h2>
-        <button className="primary">
-          <Link to="https://github.com/finos/fluxnova-bpm-platform/releases">
-            Release Notes
-          </Link>
-        </button>
-      </div>,
-    ],
-  },
-  sectionThree: {
+    {
+      title: "Fluxnova Modeler",
+      description:
+        "Desktop modeling tool releases for designing BPMN and DMN diagrams.",
+      href: "https://github.com/finos/fluxnova-modeler/releases",
+      icon: ModelerIcon,
+    },
+    {
+      title: "Fluxnova Control Center",
+      description:
+        "Operations and monitoring control center releases and updates.",
+      href: "https://github.com/finos/fluxnova-control-center/releases",
+      icon: MonitoringIcon,
+    },
+  ],
+  about: {
     className: "display-block",
     elements: [
-      <h1>About Fluxnova Releases</h1>,
-      <p>
+      <h2 className="section-heading" key="title">
+        About Fluxnova Releases
+      </h2>,
+      <p key="body">
         Fluxnova Releases provide a complete overview of improvements, updates,
         and changes across the Fluxnova platform. Each release documents new
         features, enhancements, bug fixes, performance optimizations, and
