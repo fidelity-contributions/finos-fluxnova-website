@@ -3,7 +3,7 @@
   "info": {
     "title": "Fluxnova Platform REST API",
     "description": "OpenApi Spec for Fluxnova Platform REST API.",
-    "version": "3.0.0",
+    "version": "3.1.1",
     "license": {
       "name": "Apache License 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -71,6 +71,9 @@
       "name": "Condition"
     },
     {
+      "name": "Configuration"
+    },
+    {
       "name": "Decision Definition"
     },
     {
@@ -113,7 +116,7 @@
       "name": "Historic Decision Requirements Definition"
     },
     {
-      "name": "Historic Detail API"
+      "name": "Historic Detail"
     },
     {
       "name": "Historic External Task Log"
@@ -2435,6 +2438,388 @@
               }
             },
             "description": "If the user is not allowed to start the process instance of the process definition, which start condition was evaluated to `true`."
+          }
+        }
+      }
+    },
+    "/configurations": {
+      "get": {
+        "operationId": "getConfigurations",
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Get Configurations",
+        "description": "Retrieves the configurations applicable to a tenant.\n\nIf `tenantId` is omitted or blank, global default configurations are returned.\nIf `tenantId` is set, active global configurations are returned, and the tenant\u0027s\nactive entry replaces the global entry for the same `configKey`.\n\nBy default, only configurations with status `ACTIVE` are returned. Set\n`includeInactive` to `true` to return all entries of every status without\nmerging: the global entries and, if `tenantId` is set, the tenant\u0027s entries.\nResults are ordered by `configKey`, then global before tenant, then `version`.",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The tenant whose applicable configurations to retrieve. Tenant entries override global entries with the same key. If omitted or blank, retrieves global defaults only."
+          },
+          {
+            "name": "includeInactive",
+            "in": "query",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "description": "Whether to return all entries of every status for the global scope and the tenant, without merging. By default, only the applicable active configurations are returned."
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConfigurationDto"
+                  }
+                },
+                "examples": {
+                  "global-configurations": {
+                    "summary": "GET `/configurations`",
+                    "value": [
+                      {
+                        "id": "8a6cf4aa-6db5-4b95-9871-1f0f9ef8b2f5",
+                        "configKey": "mail.from",
+                        "configValue": "noreply@example.org",
+                        "version": 1,
+                        "status": "ACTIVE",
+                        "createdBy": "demo",
+                        "createdAt": "2026-08-20T14:00:00.000+0000",
+                        "updatedBy": "demo",
+                        "updatedAt": "2026-08-20T14:00:00.000+0000"
+                      }
+                    ]
+                  },
+                  "tenant-configurations": {
+                    "summary": "GET `/configurations?tenantId\u003dtenant-a`",
+                    "value": [
+                      {
+                        "id": "8a6cf4aa-6db5-4b95-9871-1f0f9ef8b2f5",
+                        "configKey": "mail.from",
+                        "tenantId": "tenant-a",
+                        "configValue": "noreply@tenant-a.example.org",
+                        "version": 1,
+                        "status": "ACTIVE",
+                        "createdBy": "demo",
+                        "createdAt": "2026-08-20T14:00:00.000+0000",
+                        "updatedBy": "demo",
+                        "updatedAt": "2026-08-20T14:00:00.000+0000"
+                      },
+                      {
+                        "id": "bf77b760-4b6e-40a7-a3ad-0c8d026270c8",
+                        "configKey": "mail.replyTo",
+                        "configValue": "support@example.org",
+                        "version": 1,
+                        "status": "ACTIVE",
+                        "createdBy": "demo",
+                        "createdAt": "2026-08-19T14:00:00.000+0000",
+                        "updatedBy": "demo",
+                        "updatedAt": "2026-08-19T14:00:00.000+0000"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "description": "Request successful."
+          }
+        }
+      },
+      "post": {
+        "operationId": "createConfiguration",
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Create Configuration",
+        "description": "Creates a new process configuration entry.\n\nIf `tenantId` is omitted or blank, the entry is created as a global configuration.\nA duplicate active `(configKey, tenantId)` scope returns `409 Conflict`.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConfigurationDto"
+              },
+              "examples": {
+                "example-1": {
+                  "summary": "POST `/configurations`",
+                  "value": {
+                    "configKey": "mail.from",
+                    "configValue": "noreply@example.org",
+                    "tenantId": "tenant-a"
+                  }
+                },
+                "example-2": {
+                  "summary": "POST `/configurations` (global)",
+                  "value": {
+                    "configKey": "mail.from",
+                    "configValue": "noreply-global@example.org"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationDto"
+                },
+                "examples": {
+                  "example-1": {
+                    "summary": "Status 201.",
+                    "value": {
+                      "id": "8a6cf4aa-6db5-4b95-9871-1f0f9ef8b2f5",
+                      "configKey": "mail.from",
+                      "tenantId": "tenant-a",
+                      "configValue": "noreply@example.org",
+                      "version": 1,
+                      "status": "ACTIVE",
+                      "createdBy": "demo",
+                      "createdAt": "2026-08-20T14:00:00.000+0000",
+                      "updatedBy": "demo",
+                      "updatedAt": "2026-08-20T14:00:00.000+0000"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Request successful."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Returned if `configKey` or `configValue` is missing or blank."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Returned if an active configuration with the same `(configKey, tenantId)` already exists."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "The configuration could not be created due to an internal server error."
+          }
+        }
+      }
+    },
+    "/configurations/{id}": {
+      "delete": {
+        "operationId": "deleteConfiguration",
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Delete Configuration",
+        "description": "Soft-deletes an active configuration by marking it `DELETED`.\n\nThe entry is retained and can still be retrieved by id or by listing\nconfigurations with `includeInactive\u003dtrue`.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The id of the active configuration to delete."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Request successful. This method returns no content."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Configuration with the given id does not exist."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Returned if the configuration is not active."
+          }
+        }
+      },
+      "get": {
+        "operationId": "getConfiguration",
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Get Configuration",
+        "description": "Retrieves a configuration by id. Both active and inactive configurations can be retrieved.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The id of the configuration to retrieve."
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationDto"
+                },
+                "examples": {
+                  "configuration": {
+                    "summary": "GET `/configurations/8a6cf4aa-6db5-4b95-9871-1f0f9ef8b2f5`",
+                    "value": {
+                      "id": "8a6cf4aa-6db5-4b95-9871-1f0f9ef8b2f5",
+                      "configKey": "mail.from",
+                      "tenantId": "tenant-a",
+                      "configValue": "noreply@example.org",
+                      "version": 1,
+                      "status": "ACTIVE",
+                      "createdBy": "demo",
+                      "createdAt": "2026-08-20T14:00:00.000+0000",
+                      "updatedBy": "demo",
+                      "updatedAt": "2026-08-20T14:00:00.000+0000"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Request successful."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Configuration with the given id does not exist."
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateConfiguration",
+        "tags": [
+          "Configuration"
+        ],
+        "summary": "Update Configuration",
+        "description": "Updates an active configuration by creating a new version.\n\nThe existing entry is marked `INACTIVE` and a new `ACTIVE` entry with the same\n`configKey` and `tenantId` is created. The new entry receives a new `id` and a\n`version` one greater than the highest existing version for that key and scope.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "The id of the active configuration to update."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConfigurationDto"
+              },
+              "examples": {
+                "example-1": {
+                  "summary": "PUT `/configurations/8a6cf4aa-6db5-4b95-9871-1f0f9ef8b2f5`",
+                  "value": {
+                    "configValue": "notifications@example.org"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationDto"
+                },
+                "examples": {
+                  "example-1": {
+                    "summary": "Status 200.",
+                    "value": {
+                      "id": "3d9b1c22-8f0e-4a7c-9b61-2f4e5c7a1d90",
+                      "configKey": "mail.from",
+                      "tenantId": "tenant-a",
+                      "configValue": "notifications@example.org",
+                      "version": 2,
+                      "status": "ACTIVE",
+                      "createdBy": "demo",
+                      "createdAt": "2026-09-29T14:00:00.000+0000",
+                      "updatedBy": "demo",
+                      "updatedAt": "2026-09-29T14:00:00.000+0000"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Request successful. Returns the newly created active version."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Returned if the request body is missing or `configValue` is missing or blank."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Configuration with the given id does not exist."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExceptionDto"
+                }
+              }
+            },
+            "description": "Returned if the configuration is not active or was modified concurrently."
           }
         }
       }
@@ -14700,7 +15085,7 @@
       "get": {
         "operationId": "getHistoricDetails",
         "tags": [
-          "Historic Detail API"
+          "Historic Detail"
         ],
         "summary": "Get Historic Details",
         "description": "Queries for historic details that fulfill the given parameters.\nThe size of the result set can be retrieved by using the\n[Get Historic Detail Count](https://docs.fluxnova.finos.org/manual/develop/reference/rest/history/detail/get-detail-query-count/) method.",
@@ -15008,7 +15393,7 @@
       "post": {
         "operationId": "queryHistoricDetails",
         "tags": [
-          "Historic Detail API"
+          "Historic Detail"
         ],
         "summary": "Get Historic Details (POST)",
         "description": "Queries for historic details that fulfill the given parameters. This method is slightly more\npowerful than the [Get Historic Details](https://docs.fluxnova.finos.org/manual/develop/reference/rest/history/detail/get-detail-query/)\nmethod because it allows sorting by multiple parameters. The size of the result set can be retrieved by\nusing the [Get Historic Detail Count](https://docs.fluxnova.finos.org/manual/develop/reference/rest/history/detail/get-detail-query-count/)\nmethod.",
@@ -15159,7 +15544,7 @@
       "get": {
         "operationId": "getHistoricDetailsCount",
         "tags": [
-          "Historic Detail API"
+          "Historic Detail"
         ],
         "summary": "Get Historic Detail Count",
         "description": "Queries for the number of historic details that fulfill the given parameters.\nTakes the same parameters as the [Get Historic\nDetails](https://docs.fluxnova.finos.org/manual/develop/reference/rest/history/detail/get-detail-query/)\nmethod.",
@@ -15354,9 +15739,9 @@
     },
     "/history/detail/{id}": {
       "get": {
-        "operationId": "historicDetail",
+        "operationId": "getHistoricDetail",
         "tags": [
-          "Historic Detail API"
+          "Historic Detail"
         ],
         "summary": "Get Historic Detail",
         "description": "Retrieves a historic detail by id.",
@@ -15438,9 +15823,9 @@
     },
     "/history/detail/{id}/data": {
       "get": {
-        "operationId": "historicDetailBinary",
+        "operationId": "getHistoricDetailBinary",
         "tags": [
-          "Historic Detail API"
+          "Historic Detail"
         ],
         "summary": "Get Historic Detail (Binary)",
         "description": "Retrieves the content of a historic variable update by id. Applicable for byte\narray and file variables.",
@@ -22312,6 +22697,22 @@
             "description": "Only include historic variable instances which belong to one of the passed and comma-separated process instance ids."
           },
           {
+            "name": "businessKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include historic variable instances which belong to process instances with the given business key."
+          },
+          {
+            "name": "businessKeyLike",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include historic variable instances which belong to process instances with a business key like the given value.\nThe parameter can include the wildcard `%` to express like-strategy such as: starts with (`%`name),\nends with (name`%`) or contains (`%`name`%`)."
+          },
+          {
             "name": "processDefinitionId",
             "in": "query",
             "schema": {
@@ -22706,6 +23107,22 @@
               "type": "string"
             },
             "description": "Only include historic variable instances which belong to one of the passed and comma-separated process instance ids."
+          },
+          {
+            "name": "businessKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include historic variable instances which belong to process instances with the given business key."
+          },
+          {
+            "name": "businessKeyLike",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include historic variable instances which belong to process instances with a business key like the given value.\nThe parameter can include the wildcard `%` to express like-strategy such as: starts with (`%`name),\nends with (name`%`) or contains (`%`name`%`)."
           },
           {
             "name": "processDefinitionId",
@@ -41829,8 +42246,8 @@
                             "version": "1.4.190 (2015-10-11)"
                           },
                           "application-server": {
-                            "vendor": "Wildfly",
-                            "version": "WildFly Full 19.0.0.Final (WildFly Core 11.0.0.Final) - 2.0.30.Final"
+                            "vendor": "Apache Tomcat",
+                            "version": "Apache Tomcat/11.0.22"
                           },
                           "jdk": {
                             "version": "14.0.2",
@@ -43541,6 +43958,22 @@
             "description": "Only include variable instances which belong to one of the passed and comma-separated\nprocess instance ids."
           },
           {
+            "name": "businessKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include variable instances which belong to process instances with the given business key."
+          },
+          {
+            "name": "businessKeyLike",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include variable instances which belong to process instances with a business key like the given value.\nThe parameter can include the wildcard `%` to express like-strategy such as: starts with (`%`name),\nends with (name`%`) or contains (`%`name`%`)."
+          },
+          {
             "name": "executionIdIn",
             "in": "query",
             "schema": {
@@ -43939,6 +44372,22 @@
               "type": "string"
             },
             "description": "Only include variable instances which belong to one of the passed and comma-separated\nprocess instance ids."
+          },
+          {
+            "name": "businessKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include variable instances which belong to process instances with the given business key."
+          },
+          {
+            "name": "businessKeyLike",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Only include variable instances which belong to process instances with a business key like the given value.\nThe parameter can include the wildcard `%` to express like-strategy such as: starts with (`%`name),\nends with (name`%`) or contains (`%`name`%`)."
           },
           {
             "name": "executionIdIn",
@@ -45413,6 +45862,68 @@
           }
         }
       },
+      "ConfigurationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true,
+            "description": "The unique id of the configuration entry."
+          },
+          "configKey": {
+            "type": "string",
+            "nullable": true,
+            "description": "The configuration key."
+          },
+          "tenantId": {
+            "type": "string",
+            "nullable": true,
+            "description": "The tenant scope of the configuration. `null` means global scope."
+          },
+          "configValue": {
+            "type": "string",
+            "nullable": true,
+            "description": "The configuration value."
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The optimistic lock version of the configuration entry."
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "ACTIVE",
+              "INACTIVE",
+              "DELETED"
+            ],
+            "description": "The status of the configuration entry."
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true,
+            "description": "The user that created the configuration entry."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "The timestamp when the configuration entry was created."
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true,
+            "description": "The user that last updated the configuration entry."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "The timestamp when the configuration entry was last updated."
+          }
+        }
+      },
       "CorrelationMessageAsyncDto": {
         "type": "object",
         "properties": {
@@ -45557,6 +46068,28 @@
           }
         }
       },
+      "CreateConfigurationDto": {
+        "type": "object",
+        "required": [
+          "configKey",
+          "configValue"
+        ],
+        "properties": {
+          "configKey": {
+            "type": "string",
+            "description": "The configuration key."
+          },
+          "configValue": {
+            "type": "string",
+            "description": "The configuration value."
+          },
+          "tenantId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional tenant scope. If omitted or blank, the configuration is created as global."
+          }
+        }
+      },
       "CreateFilterDto": {
         "type": "object",
         "properties": {
@@ -45694,28 +46227,28 @@
           "id": {
             "type": "string",
             "nullable": true,
-            "description": "The id of the decision requirements definition."
+            "description": "The id of the decision requirements definition"
           },
           "key": {
             "type": "string",
             "nullable": true,
-            "description": "The key of the decision requirements definition."
-          },
-          "category": {
-            "type": "string",
-            "nullable": true,
-            "description": "The category of the decision requirements definition."
+            "description": "The key of the decision requirements definition, i.e., the id of the DMN 1.0 XML decision definition."
           },
           "name": {
             "type": "string",
             "nullable": true,
             "description": "The name of the decision requirements definition."
           },
+          "category": {
+            "type": "string",
+            "nullable": true,
+            "description": "The category of the decision requirements definition."
+          },
           "version": {
             "type": "integer",
             "format": "int32",
             "nullable": true,
-            "description": "The version of the decision requirements definition that the engine assigned to\nit."
+            "description": "The version of the decision requirements definition that the engine assigned to it."
           },
           "resource": {
             "type": "string",
@@ -45730,7 +46263,7 @@
           "tenantId": {
             "type": "string",
             "nullable": true,
-            "description": "The tenant id of the decision requirements definition."
+            "description": "The tenant id of the decisionrequirements definition."
           }
         }
       },
@@ -50270,6 +50803,11 @@
                 "type": "string",
                 "nullable": true,
                 "description": "The process instance id of the root process instance that initiated the process\ncontaining this variable."
+              },
+              "businessKey": {
+                "type": "string",
+                "nullable": true,
+                "description": "The business key of the process instance that this variable instance belongs to."
               }
             }
           },
@@ -50331,6 +50869,16 @@
               "type": "string"
             },
             "description": "Only include historic variable instances which belong to one of the passed  process instance ids."
+          },
+          "businessKey": {
+            "type": "string",
+            "nullable": true,
+            "description": "Only include historic variable instances which belong to process instances with the given business key."
+          },
+          "businessKeyLike": {
+            "type": "string",
+            "nullable": true,
+            "description": "Only include historic variable instances which belong to process instances with a business key like the given value.\nThe parameter can include the wildcard `%` to express like-strategy such as: starts with (`%`name),\nends with (name`%`) or contains (`%`name`%`)."
           },
           "processDefinitionId": {
             "type": "string",
@@ -54221,7 +54769,7 @@
             "items": {
               "type": "string"
             },
-            "description": "List of Fluxnova integrations used (e.g., Fluxnova Spring Boot Starter, Fluxnova Run, WildFly/JBoss subsystem, Fluxnova EJB)."
+            "description": "List of Fluxnova integrations used (e.g., Fluxnova Spring Boot Starter, Fluxnova Run, Fluxnova EJB)."
           },
           "commands": {
             "type": "object",
@@ -54368,6 +54916,18 @@
             "$ref": "#/components/schemas/VariableValueDto"
           }
         ]
+      },
+      "UpdateConfigurationDto": {
+        "type": "object",
+        "required": [
+          "configValue"
+        ],
+        "properties": {
+          "configValue": {
+            "type": "string",
+            "description": "The new configuration value."
+          }
+        }
       },
       "UserCredentialsDto": {
         "type": "object",
@@ -54631,6 +55191,11 @@
                 "type": "string",
                 "nullable": true,
                 "description": "An error message in case a Java Serialized Object could not be de-serialized."
+              },
+              "businessKey": {
+                "type": "string",
+                "nullable": true,
+                "description": "The business key of the process instance that this variable instance belongs to."
               }
             }
           },
@@ -54660,6 +55225,16 @@
               "type": "string"
             },
             "description": "Only include variable instances which belong to one of the passed \nprocess instance ids."
+          },
+          "businessKey": {
+            "type": "string",
+            "nullable": true,
+            "description": "Only include variable instances which belong to process instances with the given business key."
+          },
+          "businessKeyLike": {
+            "type": "string",
+            "nullable": true,
+            "description": "Only include variable instances which belong to process instances with a business key like the given value.\nThe parameter can include the wildcard `%` to express like-strategy such as: starts with (`%`name),\nends with (name`%`) or contains (`%`name`%`)."
           },
           "executionIdIn": {
             "type": "array",
